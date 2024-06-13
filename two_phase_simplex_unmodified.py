@@ -128,7 +128,7 @@ class TwoPhaseSimplex:
         n: int
         m, n = self.__a.shape
         for var in basis:
-            if n + 1 <= var <= m + n and self.__tableau[0,var] != 0:
+            if n + 1 <= var <= m + n and self.__tableau[0, var] != 0:
                 return False
         return True
 
@@ -155,7 +155,7 @@ class TwoPhaseSimplex:
         """
         Gets the current solution stored in the tableau, all variables not included in basis are 0
         by construction
-        
+
         Note that the solutions array returned has 0 indexed variable numbers
         (i.e. 0th index is the 1st variable).
         """
@@ -246,8 +246,6 @@ class InvalidProblemException(Exception):
     described in the constructor for TwoPhaseSimplex does
     not induce a valid linear program for solution.
     """
+
     def __init__(self, message):
         self.message = message
-
-
-
