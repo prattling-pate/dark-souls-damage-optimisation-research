@@ -122,7 +122,7 @@ Where A $\in \mathbb{Z}^{m \times n}, \boldsymbol{x}, \boldsymbol{b}, \boldsymbo
 \end{itemize}
 \par Now we can clearly write each of the three constraints algebraically as the following:
 \begin{enumerate}
-    \item $\boldsymbol{x} \leq 99$
+    \item $x_i \leq 99, \forall i \in S$
     \item $x_i \geq \max\{c_i, r_i\}, \forall i \in S$
     \item $\sum_{i \in S}x_i =  l+ \sum_{i \in S} c_i$
 \end{enumerate}
@@ -250,7 +250,7 @@ $$  \approx 0.642 \text{to 3 s.f}$$
 \subsubsection{Recursive application of the simplex method on a piece-wise linear function}
 \par Firstly it's easy to see that this will take a bit more work, however it will be a more useful algorithm due to the "soft caps" of Dark Souls being directly built into this rather than being ignored in the previous solution (although this may not affect the solution provided by the method).
 
-\par In order to provide this 
+\par In order to provide this we must switch the reduced cost vector of the simplex instance (referred to as a tableau), ensuring we have it adjusted accordingly to new objective function and current solution. Then we will simply reapply the simplex method until the function switches or an optimal solution is finally given.
 
 \printbibliography[heading=bibintoc, title={Bibliography}]
 \end{document}
