@@ -11,7 +11,7 @@ def _get_scales_list(scalings : list[str]) -> list[float]:
     return scalings_copy
 
 # input weapon details
-grades : list[str]= [input(f"Input grade for skill {1+i}: ") for i in range(4)]
+grades : list[str]= [input(f"Input grade for skill {1+i}: ").upper() for i in range(4)]
 requirements : list[int] = [int(input(f"Input requirement for skill {i+1}: ")) for i in range(4)]
 
 # input default class skills
