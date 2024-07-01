@@ -107,11 +107,25 @@ Where A $\in \mathbb{Z}^{m \times n}, \boldsymbol{x}, \boldsymbol{b}, \boldsymbo
 \paragraph{}In order to create our linear program we need to identify what function we will be optimising and what constraints it is subject to. Obviously, we want to optimise the total damage output of a given weapon and we want to do this subject to the constraints of the levelling system in Dark Souls.
 \subsubsection{Setting up the damage optimisation program - constraints}
 \paragraph{}Firstly we will look at creating constraints for our linear program (as discussing the objective function will take much more time):
-\begin{itemize}
+\begin{enumerate}
     \item We cannot have a skill be a higher level than 99,
     \item We cannot have a skill be below the maximum between what the class of the player starts at or what the minimum weapon requirement is for our given weapon.
-    \item We cannot have more skill points than the amount of levels we are putting toward damaging skill points added with the number of skill points the player's damaging skills have by default
+    \item We must use all skill levels given to us, so the sum of all skill points must be equal to the default skill points in the skills and the number of skill points we will use.
+\end{enumerate}
+\par We can easily characterize these constraints using algebraic inequalities. Firstly let's define some notation that will help us (some of these will be reiterated in the next section):
+\begin{itemize}
+    \item Let $l$ be the number of skill points devoted to the problem.
+    \item Let $c_i$ be the class minimum skill points for skill $i$.
+    \item Let $r_i$ be the requirement for the given weapon to be used for skill $i$.
+    \item Let $S$ be the set of all skills in the problem.
+    \item Let $\boldsymbol{x}$ be the vector of skill points (each entry is related to some $i \in S$).
 \end{itemize}
+\par Now we can clearly write each of the three constraints algebraically as the following:
+\begin{enumerate}
+    \item $\boldsymbol{x} \leq 99$
+    \item $x_i \geq \max\{c_i, r_i\}, \forall i \in S$
+    \item $\sum_{i \in S}x_i =  l+ \sum_{i \in S} c_i$
+\end{enumerate}
 \subsubsection{Setting up the damage optimisation program - objective function}
 \paragraph{}By looking at data mining efforts by the player-base of Dark Souls we have the exact formula used in calculating the damage of a given weapon in Dark Souls \cite{dswiki-formula}.
 \paragraph{}Let's define some variables/constants to make this easier:
@@ -203,7 +217,40 @@ f_{M}(x)=
         0 & \text{otherwise}
     \end{cases}
 \end{equation}
-\paragraph{}So the functions are actually continuous and linear, but only over parts of their domain due to their piece-wise definitions. Hence we need to discuss some alternative ways to approach this linear program.
+\paragraph{}So the functions are actually continuous\footnote{$f_M$ is technically not continuous as it is laid out here as the 0.0041 coefficient on the interval $50 < x < 99$ is an approximation of the true coefficient for nice layout, the function itself is actually continuous.} and linear (assuming x is real and not discrete like it will be), but only over parts of their domain due to their piece-wise definitions. The reason for this is a concept known as "soft caps" in skill leveling in Dark Souls (This allows for very accurate damage optimisation). Hence we need to discuss some alternative ways to approach this linear program.
 \section{Problems in linear programming}
+\par In order to solve our optimisation for damage we must be able to properly handle the fact that the objective function changes as our decision variables change. These are different for each of the two subsets of skills $P$ and $M$.
+\par One way we may handle this is by approximation of each function to a constant function allowing us to apply the simplex method without any problems, however we lose the previously mentioned encoded "soft caps" in skill leveling with this, although this will result in faster time to solve.
+\par Another way we may handle this is by running the simplex method recursively on the problem every time the objective function changes due to the interval $x_i$ exists in for one of the skills $i \in S$, then by appropriately modifying the simplex method instance and continuing to solve until this happens again or the problem is solved. However this would cause an upper bound of 16 simplex method switches occurring, this also may not be guaranteed to provide a solution every-time (as I haven't proven this to be true).
+\subsection{Solving the problem}
+\par Let's try to solve this problem with the outlined solutions above.
+\subsubsection{Approximation to a constant}
+\par To approximate $f_P$ and $f_M$ to a constant function the easiest and most obvious solution will be to find the average (mean) value of the function and choosing that to be the approximation. This can be done by using the Mean Value of a Function formula \cite{mean-value-func}:
+\begin{equation}
+    \overline{f(x)}=\frac{1}{b-a}\int_{a}^{b}f(x)dx
+\end{equation}
+\par Hence we can compute the mean values of $f_P$ and $f_M$:
+(I will show the steps for the first computation so there's an idea of where I got the constants)
+\par Observe:
+$$\overline{f_P(x)}=\frac{1}{99-1}\int_{1}^{99}f_P(x)dx$$
+$$=\frac{1}{98}[\int_{1}^{10}f_P(x)dx + \int_{10}^{20}f_P(x)dx + \int_{20}^{40}f_P(x)dx + \int_{40}^{99}f_P(x)dx]$$
+$$=\frac{1}{98}[\int_{1}^{10}0.005xdx + \int_{10}^{20}0.05 + 0.035(x-10)dx + \int_{20}^{40}0.4 + 0.0225(x-20)dx + \int_{40}^{99}0.85+0.0025(x-40)dx]$$
+$$=\frac{1}{98}[(\frac{0.005}{2}x^2)\Big|_1^{10} + ( \frac{0.035}{2}x^2-9.95x)\Big|_{10}^{20} + (\frac{0.0225}{2}x^2-19.6x)\Big|_{20}^{40} + (\frac{0.0025}{2}x^2-39.15x)\Big|_{40}^{99}]$$
+$$=\frac{1}{98}[0.2475 + 2.25 + 2.875 + 54.5013]$$
+$$ = \frac{59.8738}{98}$$
+$$ \approx 0.612 \text{to 3 s.f}$$
+\par Now for the other function:
+$$\overline{f_M(x)}=\frac{1}{99-1}\int_{1}^{99}f_M(x)dx$$
+$$  \approx 0.642 \text{to 3 s.f}$$
+
+\par We get that the averages of the two functions are similar so the approximation may not be great, but that is to be decided by test suites of optimisation problems later on.
+
+\par From here we can apply the simplex method without problem so this is our first working solution for the problem.
+
+\subsubsection{Recursive application of the simplex method on a piece-wise linear function}
+\par Firstly it's easy to see that this will take a bit more work, however it will be a more useful algorithm due to the "soft caps" of Dark Souls being directly built into this rather than being ignored in the previous solution (although this may not affect the solution provided by the method).
+
+\par In order to provide this 
+
 \printbibliography[heading=bibintoc, title={Bibliography}]
 \end{document}
