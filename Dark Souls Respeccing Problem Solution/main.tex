@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
+\usepackage{mathtools}
 \usepackage[
 backend=biber,
 style=alphabetic,
@@ -11,6 +12,7 @@ sorting=ynt
 
 \newtheorem{definition}{Definition}[section]
 \newtheorem{lemma}{Lemma}[section]
+\newtheorem{algorithm}{Algorithm}[section]
 
 \addbibresource{citations.bib} %Imports bibliography file
 
@@ -83,8 +85,7 @@ y=-x + 3, & & \frac{15}{7} \leq x \leq 3
 
 \paragraph{}The core idea of the simplex method is that simple solutions to these linear programs can be found at the vertices of the shape described by the constraints of the program, moving between these vertices until an optimal solution can be found.
 
-\paragraph{}This method will not be fully explained or derived here as it is a lengthy explanation.
-
+\paragraph{}This method will not be fully explained or derived here as it is a lengthy explanation. For more information see Linear Programming in the bibliography \cite{linear-programming}.
 \subsubsection{Setting up the damage optimisation program}
 The following is the standard form of a linear program used for producing solutions:
 \begin{equation*}
@@ -141,7 +142,7 @@ Where A $\in \mathbb{Z}^{m \times n}, \boldsymbol{x}, \boldsymbol{b}, \boldsymbo
 \item Let $S = P \cup M$ be the set of damage attributes
 \item Let $f_P$ be the damage rating function for physical attributes
 \item Let $f_M$ be the damage rating function for magic attributes
-\item Let $k_i \in (0,1]$ be the damage scaling multiplier of the skill $i \in S$ due to the given weapon
+\item Let $k_i \in (0,2]$ be the damage scaling multiplier of the skill $i \in S$ due to the given weapon \footnote{Note that each $k_i$ is given by a piece-wise function taking in discrete letter values, outputting the midpoint of the possible scaling of a weapon of that grade. More info available on the wiki \cite{dswiki-formula}.}
 \item Let $B_P$ be the base physical damage of the given weapon
 \item Let $B_M$ be the base magic damage of the given weapon
 \end{itemize}
@@ -191,7 +192,7 @@ $$\iff f(\boldsymbol{x}) \cong B_P\sum_{i \in P} k_i f_P(x_i) + B_M\sum_{i \in M
 $$\iff f(\boldsymbol{x}) \cong (k_1 B_P, k_2 B_P, k_3 B_M, k_4 B_M)\cdot (f_P (x_1), f_P(x_2), f_M(x_3), f_M(x_4))$$
 
 \paragraph{}Hence we can instead solve the linear program using: 
-\begin{equation}\textbf{}
+\begin{equation}
     g(\boldsymbol{x})=(k_1 B_P, k_2 B_P, k_3 B_M, k_4 B_M)\cdot (f_P (x_1), f_P(x_2), f_M(x_3), f_M(x_4))
 \end{equation}
 \paragraph{}Notice that we are still not at the correct form. Here we run into some issues trying to further simplify the function. If $f_P$ and $f_M$ were perfectly linear functions then we could do that easily, however the definitions of the two functions are as follows \cite{dswiki-formula}:
@@ -252,5 +253,130 @@ $$  \approx 0.642 \text{to 3 s.f}$$
 
 \par In order to provide this we must switch the reduced cost vector of the simplex instance (referred to as a tableau), ensuring we have it adjusted accordingly to new objective function and current solution. Then we will simply reapply the simplex method until the function switches or an optimal solution is finally given.
 
+\begin{algorithm}[Piece-Wise Linear Objective function Simplex method]
+~\\
+    \begin{enumerate}
+        \item Find the current objective function by looking at the piece-wise definition of the damage rating functions.
+        \item Apply the two phase simplex method
+        \item If the objective function changes due to the piece-wise damage rating functions being altered then go back to step 1.
+    \end{enumerate}
+    Eventually this will yield an optimal solution for all feasible problems.
+\end{algorithm}
+
+\par With both of these approaches we may finally formally construct our linear programs to be solved to accomplish this optimisation problem.
+
+\section{Setting up the linear program formally}
+\par So far we have been setting up in very vague terms what we will be doing to solve the problem. However now I will lay out every step of preparation explicitly:
+\subsection{Setting up the constraints}
+\par In linear programming to solve a problem we want to be able to express the constraints as a matrix $A$ paired with a vector $\boldsymbol{b}$ with the relationship $A\boldsymbol{x} = \boldsymbol{b}$ where $\boldsymbol{x}$ is the vector of decision variables (in this case the skill points in every skill). To do this we must convert some of our constraints from inequalities to inequalities by adding additional decision variables:
+\begin{enumerate}
+    \item $x_i \leq 99, \forall i \in S \implies x_i + y_i = 99, \forall i \in S$
+    \item $x_i \geq \max\{c_i, r_i\} \forall i \in S \implies x_i - s_i = \max\{c_i, r_i\}, \forall i \in S$
+    \item The third constraint is already described by an equality $$\sum_{i \in S} x_i = l + \sum_{i \in S} c_i$$
+\end{enumerate}
+\pagebreak
+\par We can encode this into a matrix of size $9 \times 12$ as each via matrix multiplication we have the following:
+\setcounter{MaxMatrixCols}{12}
+\begin{equation}
+    \begin{pmatrix}
+        1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+        1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 & 0 & 0 \\
+        0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 & 0 \\
+        0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 \\
+        1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 
+    \end{pmatrix}
+    \begin{pmatrix}
+        x_1 \\
+        x_2 \\
+        x_3 \\
+        x_4 \\
+        y_1 \\
+        y_2 \\
+        y_3 \\
+        y_4 \\
+        s_1 \\
+        s_2 \\
+        s_3 \\
+        s_4
+    \end{pmatrix}
+    = \begin{pmatrix}
+        99 \\
+        99 \\
+        99 \\
+        99 \\
+        \max\{c_i, r_i\} \\
+        \max\{c_i, r_i\} \\
+        \max\{c_i, r_i\} \\
+        \max\{c_i, r_i\} \\
+        l + \sum_{i \in S} c_i
+    \end{pmatrix}
+\end{equation}
+Where $x_1, ..., s_4 \in \mathbb{Z}^+$.
+\par This matrix equation expresses all of our constraints exactly.
+\subsection{Setting up the objective function}
+\par When using the simplex method that I will be personally using (which minimises a given linear function of objective functions) we must express the objective function in the following way:
+$$\min \boldsymbol{c}\cdot\boldsymbol{x}$$
+Where $\boldsymbol{c} \in \mathbb{R}$, $\boldsymbol{x} \in \mathbb{Z}^+$. $\boldsymbol{x}$ is the vector of decision variables and $\boldsymbol{c}$ represents the coefficients in front of each decision variable in the linear objective function.
+\par Our objective function for the optimisation damage problem is
+$$g(\boldsymbol{x})=(k_1 B_P, k_2 B_P, k_3 B_M, k_4 B_M)\cdot (f_P (x_1), f_P(x_2), f_M(x_3), f_M(x_4))$$
+\par We also want to maximise this function (i.e. maximise damage output) so the objective function part of the problem will be formulated the following way:
+$$-\max_{\boldsymbol{x}} - g(\boldsymbol{x})$$
+\par Note that we still need to convert our objective function $g$ into the form $\boldsymbol{c} \cdot \boldsymbol{x}$. This is where this section splits into two sections for each approach we have discussed so far.
+
+\subsubsection{Approximation method}
+\par If we use the constant approximation that $f_P(x) \approx 0.612x$ and $f_M(x) \approx 0.642x$ then we can easily convert into this form:
+\begin{equation}
+    g(\boldsymbol{x}) \approx(0.612 k_1 B_P, 0.612 k_2 B_P, 0.642 k_3 B_M, 0.642 k_4 B_M) \cdot(x_1,x_2,x_3,x_4)
+\end{equation}
+\par We can then keep this function constant for the whole duration of the problem and simply apply the two phase simplex method to find a solution to the total problem:
+\begin{equation*}
+\begin{aligned}
+    &\min & & \boldsymbol{cx} \\
+    &\text{subject to} & & A\boldsymbol{x}=\boldsymbol{b}\\
+    & & &\boldsymbol{x} \geq 0
+\end{aligned}
+\end{equation*}
+Where 
+\begin{align*}
+A = \begin{psmallmatrix}
+        1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+        1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 & 0 & 0 \\
+        0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 & 0 \\
+        0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 \\
+        1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 
+    \end{psmallmatrix}
+b = \begin{psmallmatrix}
+    99\\99\\99\\99\\ \max\{c_i, r_i\}\\ \max\{c_i, r_i\} \\ \max\{c_i, r_i\} \\ \max\{c_i, r_i\} \\ l + \sum_{i \in S} c_i
+\end{psmallmatrix}
+c = 
+\begin{psmallmatrix}
+    0.642 k_1 B_P \\
+    0.642 k_2 B_P  \\
+    0.612 k_3 B_M \\
+    0.612 k_4 B_M
+\end{psmallmatrix}
+x = \begin{psmallmatrix}
+    x_1 \\
+    x_2 \\
+    x_3 \\
+    x_4 \\
+    y_1 \\
+    y_2 \\
+    y_3 \\
+    y_4 \\
+    s_1 \\
+    s_2 \\
+    s_3 \\
+    s_4
+\end{psmallmatrix}
+\end{align*}
 \printbibliography[heading=bibintoc, title={Bibliography}]
 \end{document}
