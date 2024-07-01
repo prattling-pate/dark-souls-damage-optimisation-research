@@ -6,7 +6,6 @@ a given linear program provided it is in the correct form.
 from typing import Sequence
 import numpy as np
 
-
 class TwoPhaseSimplex:
     """
     Class which is used to solve a given linear program which is in standard given by a
