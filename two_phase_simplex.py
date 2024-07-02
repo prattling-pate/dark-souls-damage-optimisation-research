@@ -229,14 +229,16 @@ class TwoPhaseSimplex:
         """Returns the tableau current state"""
         return self._tableau
 
-    def get_solution(self) -> dict:
+    def get_solution(self) -> list:
         """
         Returns dict containing the solution to the given system
         """
-        solution_dict = {}
+        solution_dict = []
         for i, soln in enumerate(self._solution):
+            if i > 3:
+                break
             # have to translate to 1 index variable names
-            solution_dict[f"x{i+1}"] = soln
+            solution_dict.append(soln)
         return solution_dict
 
 class LinearPieceWiseTwoPhaseSimplex(TwoPhaseSimplex):

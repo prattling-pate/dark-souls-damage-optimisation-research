@@ -26,7 +26,7 @@ level : int = int(input(f"Input number of skill points to input: "))
 
 # cost vector for objective function
 scalings_floats = _get_scales_list(grades)
-cost_vector = [0.612, 0.612, 0.642, 0.642, 0, 0, 0, 0, 0, 0, 0, 0]
+cost_vector = [-0.612, -0.612, -0.642, -0.642, 0, 0, 0, 0, 0, 0, 0, 0]
 
 # multiply correctly according to mathematical formulation
 for i, scalar in enumerate(scalings_floats):
