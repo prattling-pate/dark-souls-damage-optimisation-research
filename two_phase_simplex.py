@@ -10,6 +10,7 @@ class TwoPhaseSimplex:
     """
     Class which is used to solve a given linear program which is in standard given by a
     matrix a, vector b and vector c.
+    The problem is set to maximising the objective function by default.
     """
 
     def __init__(
@@ -238,7 +239,65 @@ class TwoPhaseSimplex:
             solution_dict[f"x{i+1}"] = soln
         return solution_dict
 
+class LinearPieceWiseTwoPhaseSimplex(TwoPhaseSimplex):
+    """
+    An extension of the basic two phase simplex method class which allows for iterative
+    solving of a problem with a  linear piece-wise objective function
+    """
+    def __init__(self, a, b, c, scalings_floats, base_physical, base_magical):
+        super().__init__(a , b, c)
+        self._scalings_floats = scalings_floats
+        self._base_physical = base_physical
+        self._base_magical = base_magical
 
+    def _get_cost_vector(self, skill_vector) -> np.ndarray:
+        # only use slopes of linear functions as we allowed to do that using the 
+        # properties derived from solution equivalency
+        skill_vector_copy = skill_vector.copy()
+        for i in range(4):
+            # physical skills
+            if i < 2:
+                if skill_vector_copy[i] <= 10:
+                    skill_vector_copy[i]*=0.005
+                elif skill_vector_copy[i] <= 20:
+                    skill_vector_copy[i] *= 0.035
+                elif skill_vector_copy[i] <= 40:
+                    skill_vector_copy[i] *= 0.0225
+                else:
+                    skill_vector_copy[i] *= 0.0025
+            # magical skills
+            else:
+                if skill_vector_copy[i] <= 10:
+                    skill_vector_copy[i]*=0.005
+                elif skill_vector_copy[i] <= 30:
+                    skill_vector_copy[i] *= 0.0225
+                elif skill_vector_copy[i] <= 50:
+                    skill_vector_copy[i] *= 0.015
+                else:
+                    skill_vector_copy[i] *= 0.0041
+        return skill_vector_copy
+
+    def _complete_phase_two(self, basis: np.ndarray) -> np.ndarray:
+        """
+        Solves the phase 2 simplex by applying the phase 1 simplex onto the
+        new tableau.
+        """
+        while self._tableau[0, 1:].min() < 0:
+            r, s = self._find_pivot()
+            self._pivot(r, s)
+            basis[r - 1] = s
+            # after pivoting change to new cost_vector and reformulate the phase two tableau
+            cost_vector = self._get_cost_vector(self._get_solution(basis))
+            for i, scalar in enumerate(self._scalings_floats):
+                if i < 2:
+                    cost_vector[i] *= scalar * self._base_physical
+                else:
+                    cost_vector[i] *= scalar * self._base_magical
+            self._c = cost_vector
+            self._change_tableau_to_phase_two(basis)
+        return basis
+
+    
 class InvalidProblemException(Exception):
     """
     Exception which is displayed when the linear program
