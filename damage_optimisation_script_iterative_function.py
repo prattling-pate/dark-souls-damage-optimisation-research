@@ -34,12 +34,13 @@ def _get_cost_vector(skill_vector : list[float]) -> list[float]:
                 skill_vector_copy[i] *= 0.015
             else:
                 skill_vector_copy[i] *= 0.0041
+    print(skill_vector_copy)
     return skill_vector_copy + [0 for i in range(8)]
 
 def optimise_iteratively(grades, requirements, skills, base_physical, base_magical, level):
     scalings_floats = _get_scales_list(grades)
 
-    cost_vector : list[float] = [-1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0]
+    cost_vector : list[float] = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # find the correct piece-wise section of damage rating functions
     cost_vector = _get_cost_vector(skills)

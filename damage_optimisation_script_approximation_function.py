@@ -14,7 +14,7 @@ def _get_scales_list(scalings : list[str]) -> list[float]:
 def optimise_damage_approximately(grades, requirements, skills, base_physical, base_magical, level):
     # cost vector for objective function
     scalings_floats = _get_scales_list(grades)
-    cost_vector = [0.612, 0.612, 0.642, 0.642, 0, 0, 0, 0, 0, 0, 0, 0]
+    cost_vector = [-0.612, -0.612, -0.642, -0.642, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # multiply correctly according to mathematical formulation
     for i, scalar in enumerate(scalings_floats):
@@ -52,6 +52,8 @@ def optimise_damage_approximately(grades, requirements, skills, base_physical, b
     row_i[0:4] = 1
     constraint_matrix.append(row_i)
     constraint_vector.append(level + sum(skills))
+
+    print(cost_vector)
 
     problem_solver = TwoPhaseSimplex(constraint_matrix, constraint_vector, cost_vector)
 

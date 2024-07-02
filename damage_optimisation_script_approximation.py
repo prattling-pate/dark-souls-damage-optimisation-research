@@ -1,5 +1,6 @@
-from two_phase_simplex import TwoPhaseSimplex
 import numpy as np
+import scipy as sc
+from two_phase_simplex import TwoPhaseSimplex
 
 def _get_scales_list(scalings : list[str]) -> list[float]:
     """Gets the list of float damage scales for the weapon given"""
@@ -65,9 +66,9 @@ row_i[0:4] = 1
 constraint_matrix.append(row_i)
 constraint_vector.append(level + sum(skills))
 
+soln = sc.optimize.linprog(cost_vector, A_eq = constraint_matrix, b_eq = constraint_vector)
+print(soln)
+
 problem_solver = TwoPhaseSimplex(constraint_matrix, constraint_vector, cost_vector)
-
 problem_solver.solve_program()
-
 print(problem_solver.get_solution())
-
