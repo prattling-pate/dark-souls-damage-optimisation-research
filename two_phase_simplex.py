@@ -128,7 +128,7 @@ class TwoPhaseSimplex:
         n: int
         m, n = self._a.shape
         for var in basis:
-            if n + 1 <= var <= m + n and self._tableau[0,var] != 0:
+            if n + 1 <= var <= m + n:
                 return False
         return True
 
@@ -297,7 +297,6 @@ class LinearPieceWiseTwoPhaseSimplex(TwoPhaseSimplex):
                     cost_vector[i] *= scalar * self._base_magical
             self._c = cost_vector
             self._change_tableau_to_phase_two(basis)
-            print(self.get_tableau())
         return basis
 
     

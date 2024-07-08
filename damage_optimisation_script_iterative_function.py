@@ -73,9 +73,13 @@ def optimise_iteratively(grades, requirements, skills, base_physical, base_magic
         row_i[i] = 1
         row_i[i+4*2] = -1
         constraint_matrix.append(row_i) 
-        constraint_vector.append(max(requirements[i], int(skills[i]))) # constraint 3: row_i = np.zeros(4*3) row_i[0:4] = 1
-        constraint_matrix.append(row_i)
-        constraint_vector.append(level + int(sum(skills)))
+        constraint_vector.append(max(requirements[i], int(skills[i]))) 
+
+    # constraint 3: 
+    row_i = np.zeros(4*3)
+    row_i[0:4] = 1
+    constraint_matrix.append(row_i)
+    constraint_vector.append(level + int(sum(skills)))
 
     problem_solver = LinearPieceWiseTwoPhaseSimplex(constraint_matrix, constraint_vector, cost_vector, scalings_floats, base_physical, base_magical)
 

@@ -53,7 +53,6 @@ def optimise_damage_approximately(grades, requirements, skills, base_physical, b
     constraint_matrix.append(row_i)
     constraint_vector.append(level + sum(skills))
 
-    print(cost_vector)
 
     problem_solver = TwoPhaseSimplex(constraint_matrix, constraint_vector, cost_vector)
 

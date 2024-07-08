@@ -69,7 +69,6 @@ def get_total_damage_rating(points : list, scalings : list, weapon : list, two_h
     weapon : np.ndarray = np.array(weapon)
     decision_variates : np.ndarray = np.zeros(2)
     # multiplying two np arrays results in an entry wise multiplication
-    print(scalings[0])
     decision_variates[0] = 1+sum(ratings[0:2]*scalings[0:2])
     decision_variates[1] = 1+sum(ratings[2:4]*scalings[2:4])
     # now dot product of weapon and decision_variates
