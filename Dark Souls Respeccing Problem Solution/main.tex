@@ -55,7 +55,7 @@ To illustrate this section consider the following linear program:
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.35]{desmos_lp_edited.png}
+    \includegraphics[width = \textwidth]{desmos_lp_edited.png}
     \caption{A Desmos graphic of the lines representing the constraints of the above linear program (blue region).}
     \label{fig:desmos-lp}
 \end{figure}
@@ -65,7 +65,7 @@ To illustrate this section consider the following linear program:
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.35]{desmos_lp_edited_2.png}
+    \includegraphics[width=\textwidth]{desmos_lp_edited_2.png}
     \caption{A Desmos graphic of the lines representing the constraints of the above linear program (blue region) along with arrows denoting in which direction the objective function increases most.}
     \label{fig:enter-label}
 \end{figure}
@@ -142,7 +142,7 @@ Where A $\in \mathbb{Z}^{m \times n}, \boldsymbol{x}, \boldsymbol{b}, \boldsymbo
 \item Let $S = P \cup M$ be the set of damage attributes
 \item Let $f_P$ be the damage rating function for physical attributes
 \item Let $f_M$ be the damage rating function for magic attributes
-\item Let $k_i \in (0,2]$ be the damage scaling multiplier of the skill $i \in S$ due to the given weapon \footnote{Note that each $k_i$ is given by a piece-wise function taking in discrete letter values, outputting the midpoint of the possible scaling of a weapon of that grade. More info available on the wiki \cite{dswiki-formula}.}
+\item Let $k_i \in (0,2]$ be the damage scaling multiplier of the skill $i \in S$ due to the given weapon \footnote{Note that each $k_i$ is given by a piece-wise function taking in discrete letter values, outputting the midpoint of the possible scaling of a weapon of that grade. More info available on the wiki \cite{dswiki-formula} \cite{dswiki-formula-2}}
 \item Let $B_P$ be the base physical damage of the given weapon
 \item Let $B_M$ be the base magic damage of the given weapon
 \end{itemize}
@@ -195,7 +195,7 @@ $$\iff f(\boldsymbol{x}) \cong (k_1 B_P, k_2 B_P, k_3 B_M, k_4 B_M)\cdot (f_P (x
 \begin{equation}
     g(\boldsymbol{x})=(k_1 B_P, k_2 B_P, k_3 B_M, k_4 B_M)\cdot (f_P (x_1), f_P(x_2), f_M(x_3), f_M(x_4))
 \end{equation}
-\paragraph{}Notice that we are still not at the correct form. Here we run into some issues trying to further simplify the function. If $f_P$ and $f_M$ were perfectly linear functions then we could do that easily, however the definitions of the two functions are as follows \cite{dswiki-formula}:
+\paragraph{}Notice that we are still not at the correct form. Here we run into some issues trying to further simplify the function. If $f_P$ and $f_M$ were perfectly linear functions then we could do that easily, however the definitions of the two functions are as follows \cite{dswiki-formula} \cite{dswiki-formula-2}:
 \begin{equation}
 f_{P}(x)=
     \begin{cases}
@@ -378,5 +378,17 @@ x = \begin{psmallmatrix}
     s_4
 \end{psmallmatrix}
 \end{align*}
+\section{Testing of algorithms}
+After testing these two approaches it is noticed that the approximate solution is actually more effective than the iterative solution for some special cases.
+% need to show results here, i.e. excel screenshots or showing raw python data here %
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{Dark Souls Respeccing Problem Solution/special_case_simplex_edited.png}
+    \caption{A screenshot of raw data results from running iterative algorithm (red) and approximative algorithm (green) in Python 3.12, shows solution for each skill [STR, DEX, INT, FTH] and damage done by the solution.}
+    \label{fig:screenshot-results}
+\end{figure}
+\par This is likely because the objective function for the iterative method incentivises ignoring the points with the least skill points in them due to the lower slope of the damage rating functions at the lowest points of the domains. Hence what we should actually do is decrease the slopes as we gain larger skill points (i.e. incentivise increasing lower skills as they will lead to larger reward). This is an approach unusual to a linear programming problem, however since this is technically non-linear programming (but very similar) we must take other approaches. Let's see how this approach may improve or worsen the given results.
+\subsection{Improving the iterative method}
+
 \printbibliography[heading=bibintoc, title={Bibliography}]
 \end{document}
