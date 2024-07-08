@@ -12,35 +12,33 @@ def _get_scales_list(scalings : list[str]) -> list[float]:
 
 def _get_cost_vector(skill_vector : list[float]) -> list[float]:
     skill_vector_copy = skill_vector.copy()
-    print(skill_vector_copy)
     for i in range(4):
         # physical skills
         if i < 2:
             if skill_vector_copy[i] <= 10:
-                skill_vector_copy[i]*=0.005
+                skill_vector_copy[i]*=0.05
             elif skill_vector_copy[i] <= 20:
-                skill_vector_copy[i] *= 0.035
+                skill_vector_copy[i] *= 0.025
             elif skill_vector_copy[i] <= 40:
-                skill_vector_copy[i] *= 0.0225
+                skill_vector_copy[i] *= 0.00625
             else:
-                skill_vector_copy[i] *= 0.0025
+                skill_vector_copy[i] *= 0.125/59
         # magical skills
         else:
             if skill_vector_copy[i] <= 10:
                 skill_vector_copy[i]*=0.005
             elif skill_vector_copy[i] <= 30:
-                skill_vector_copy[i] *= 0.0225
+                skill_vector_copy[i] *= 0.0125
             elif skill_vector_copy[i] <= 50:
-                skill_vector_copy[i] *= 0.015
+                skill_vector_copy[i] *= 0.00625
             else:
-                skill_vector_copy[i] *= 0.0041
-    print(skill_vector_copy)
+                skill_vector_copy[i] *= 0.125/49
     return skill_vector_copy + [0 for i in range(8)]
 
 def optimise_iteratively(grades, requirements, skills, base_physical, base_magical, level):
     scalings_floats = _get_scales_list(grades)
 
-    cost_vector : list[float] = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+    cost_vector : list[float] = [-1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # find the correct piece-wise section of damage rating functions
     cost_vector = _get_cost_vector(skills)
@@ -74,14 +72,10 @@ def optimise_iteratively(grades, requirements, skills, base_physical, base_magic
         row_i = np.zeros(4*3)
         row_i[i] = 1
         row_i[i+4*2] = -1
+        constraint_matrix.append(row_i) 
+        constraint_vector.append(max(requirements[i], int(skills[i]))) # constraint 3: row_i = np.zeros(4*3) row_i[0:4] = 1
         constraint_matrix.append(row_i)
-        constraint_vector.append(max(requirements[i], int(skills[i])))
-
-    # constraint 3:
-    row_i = np.zeros(4*3)
-    row_i[0:4] = 1
-    constraint_matrix.append(row_i)
-    constraint_vector.append(level + int(sum(skills)))
+        constraint_vector.append(level + int(sum(skills)))
 
     problem_solver = LinearPieceWiseTwoPhaseSimplex(constraint_matrix, constraint_vector, cost_vector, scalings_floats, base_physical, base_magical)
 

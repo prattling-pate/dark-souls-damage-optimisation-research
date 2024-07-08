@@ -18,7 +18,7 @@ def _generate_random_feasible_test_case():
     test_case["base_magical"] = rnd.randint(0, 500)
     # levels is the only one you need to bound correctly for feasible setups
     # levels upper bound is sum ( [99 for i in range(4)] - skills)
-    upper_bound_levels = 0
+    upper_bound_levels = 0 
     for i in range(4):
         upper_bound_levels += 99 - max(test_case["skills"][i], test_case["requirements"][i])
     lower_bound_levels = 0

@@ -252,32 +252,32 @@ class LinearPieceWiseTwoPhaseSimplex(TwoPhaseSimplex):
         self._base_physical = base_physical
         self._base_magical = base_magical
 
-    def _get_cost_vector(self, skill_vector) -> np.ndarray:
+    def _get_cost_vector(self, cost_vector) -> np.ndarray:
         # only use slopes of linear functions as we allowed to do that using the 
         # properties derived from solution equivalency
-        skill_vector_copy = skill_vector.copy()
+        cost_vector_copy = cost_vector.copy()
         for i in range(4):
             # physical skills
             if i < 2:
-                if skill_vector_copy[i] <= 10:
-                    skill_vector_copy[i]*=0.005
-                elif skill_vector_copy[i] <= 20:
-                    skill_vector_copy[i] *= 0.035
-                elif skill_vector_copy[i] <= 40:
-                    skill_vector_copy[i] *= 0.0225
+                if cost_vector_copy[i] <= 10:
+                    cost_vector_copy[i] = -0.05
+                elif cost_vector_copy[i] <= 20:
+                    cost_vector_copy[i] = - 0.025
+                elif cost_vector_copy[i] <= 40:
+                    cost_vector_copy[i] = -0.00625
                 else:
-                    skill_vector_copy[i] *= 0.0025
+                    cost_vector_copy[i] = -0.125/59
             # magical skills
             else:
-                if skill_vector_copy[i] <= 10:
-                    skill_vector_copy[i]*=0.005
-                elif skill_vector_copy[i] <= 30:
-                    skill_vector_copy[i] *= 0.0225
-                elif skill_vector_copy[i] <= 50:
-                    skill_vector_copy[i] *= 0.015
+                if cost_vector_copy[i] <= 10:
+                    cost_vector_copy[i] = -0.05
+                elif cost_vector_copy[i] <= 30:
+                    cost_vector_copy[i] = -0.0125
+                elif cost_vector_copy[i] <= 50:
+                    cost_vector_copy[i] = -0.00625
                 else:
-                    skill_vector_copy[i] *= 0.0041
-        return skill_vector_copy
+                    cost_vector_copy[i] = -0.125/49
+        return cost_vector_copy
 
     def _complete_phase_two(self, basis: np.ndarray) -> np.ndarray:
         """
@@ -297,6 +297,7 @@ class LinearPieceWiseTwoPhaseSimplex(TwoPhaseSimplex):
                     cost_vector[i] *= scalar * self._base_magical
             self._c = cost_vector
             self._change_tableau_to_phase_two(basis)
+            print(self.get_tableau())
         return basis
 
     
