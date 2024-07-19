@@ -8,14 +8,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
-    - name: Build LaTeX
+    - name: Set up TeX Live
       run: |
         sudo apt-get update
+        sudo apt-get install -y texlive-full
+    - name: Download LaTeXMK
+      run: |
         sudo apt install latexmk
+    - name: Build LaTeX
+      run: |
         cd latex
         latexmk -pdf main.tex 
         latexmk -c
