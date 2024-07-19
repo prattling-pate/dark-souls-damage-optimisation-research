@@ -14,3 +14,6 @@ An interesting problem that has come up is the idea of a changing objective func
 2. I have also programatically conjectured (for n=1,...,100) that the solution given by a simplex method optimisation is identical to two functions that differ by a real positive multiple. <br>
     - I will attempt to prove this as well. <br>
 3. Together these two will give that any functions that are linear combinations of another linear function will produce the same simplex result (given all other variables in the problem are controlled, i.e. constraints are equal).
+
+# Take away
+The simplex method cannot solve the damage optimisation problem, however it can approximate a solution by approximating a linear piece wise function to a linear function over it's whole domain.
