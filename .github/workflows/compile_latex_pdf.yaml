@@ -13,4 +13,4 @@ jobs:
       uses: lyuwen/build-latex-action@v1.0.1
       with:
         # Name of the file to build.
-        file: 'latex/main.tex'
+        file: './latex/main.tex'
