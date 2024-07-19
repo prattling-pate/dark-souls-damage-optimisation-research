@@ -12,8 +12,9 @@ jobs:
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
-    - name: Enter LaTeX Folder
+    - name: Build LaTeX
       run: |
+        apt install latexmk
         cd latex
-    - name: Build LaTeX Document
-      uses: lyuwen/build-latex-action@v1.0.1
+        latexmk -pdf main.tex 
+        latexmk -c
