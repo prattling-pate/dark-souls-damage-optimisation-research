@@ -4,33 +4,36 @@ on:
   push:
     paths:
       - "**.tex"
-    
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
+
     - name: Install TeX Live
       run: |
         sudo apt-get update
         sudo apt-get install -y texlive-full
+
     - name: Download LaTeXMK
       run: |
-        sudo apt install latexmk
+        sudo apt-get install -y latexmk
+
     - name: Build LaTeX
       run: |
         cd latex
         latexmk -pdf main.tex 
         latexmk -c
+
     - name: Commit and Push PDF
       env:
         TOKEN: ${{ secrets.PAT }}
       run: |
-        cd ..
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add latex/main.pdf
         git commit -m "Add generated PDF"
-        git push "https://${TOKEN}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref }
-      working-directory: ${{ github.workspace }}
+        git push "https://${TOKEN}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref }}"
+
