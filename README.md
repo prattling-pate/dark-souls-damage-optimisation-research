@@ -1,3 +1,4 @@
+# Dark Souls damage optimisation problem
 This repo is mainly concerned with the research of an optimisation problem of maximising damage of a weapon in dark souls (and maybe extrapolating this to other souls-like games).
 
 ## (Possible) Solutions
