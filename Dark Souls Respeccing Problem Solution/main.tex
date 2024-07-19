@@ -221,30 +221,13 @@ f_{M}(x)=
 \paragraph{}So the functions are actually continuous\footnote{$f_M$ is technically not continuous as it is laid out here as the 0.0041 coefficient on the interval $50 < x < 99$ is an approximation of the true coefficient for nice layout, the function itself is actually continuous.} and linear (assuming x is real and not discrete like it will be), but only over parts of their domain due to their piece-wise definitions. The reason for this is a concept known as "soft caps" in skill leveling in Dark Souls (This allows for very accurate damage optimisation). Hence we need to discuss some alternative ways to approach this linear program.
 \section{Problems in linear programming}
 \par In order to solve our optimisation for damage we must be able to properly handle the fact that the objective function changes as our decision variables change. These are different for each of the two subsets of skills $P$ and $M$.
-\par One way we may handle this is by approximation of each function to a constant function allowing us to apply the simplex method without any problems, however we lose the previously mentioned encoded "soft caps" in skill leveling with this, although this will result in faster time to solve.
+\par One way we may handle this is by approximation of each function to a linear function allowing us to apply the simplex method without any problems, however we lose the previously mentioned encoded "soft caps" in skill leveling with this, although this will result in faster time to solve.
 \par Another way we may handle this is by running the simplex method recursively on the problem every time the objective function changes due to the interval $x_i$ exists in for one of the skills $i \in S$, then by appropriately modifying the simplex method instance and continuing to solve until this happens again or the problem is solved. However this would cause an upper bound of 16 simplex method switches occurring, this also may not be guaranteed to provide a solution every-time (as I haven't proven this to be true).
 \subsection{Solving the problem}
 \par Let's try to solve this problem with the outlined solutions above.
-\subsubsection{Approximation to a constant}
-\par To approximate $f_P$ and $f_M$ to a constant function the easiest and most obvious solution will be to find the average (mean) value of the function and choosing that to be the approximation. This can be done by using the Mean Value of a Function formula \cite{mean-value-func}:
-\begin{equation}
-    \overline{f(x)}=\frac{1}{b-a}\int_{a}^{b}f(x)dx
-\end{equation}
-\par Hence we can compute the mean values of $f_P$ and $f_M$:
-(I will show the steps for the first computation so there's an idea of where I got the constants)
-\par Observe:
-$$\overline{f_P(x)}=\frac{1}{99-1}\int_{1}^{99}f_P(x)dx$$
-$$=\frac{1}{98}[\int_{1}^{10}f_P(x)dx + \int_{10}^{20}f_P(x)dx + \int_{20}^{40}f_P(x)dx + \int_{40}^{99}f_P(x)dx]$$
-$$=\frac{1}{98}[\int_{1}^{10}0.005xdx + \int_{10}^{20}0.05 + 0.035(x-10)dx + \int_{20}^{40}0.4 + 0.0225(x-20)dx + \int_{40}^{99}0.85+0.0025(x-40)dx]$$
-$$=\frac{1}{98}[(\frac{0.005}{2}x^2)\Big|_1^{10} + ( \frac{0.035}{2}x^2-9.95x)\Big|_{10}^{20} + (\frac{0.0225}{2}x^2-19.6x)\Big|_{20}^{40} + (\frac{0.0025}{2}x^2-39.15x)\Big|_{40}^{99}]$$
-$$=\frac{1}{98}[0.2475 + 2.25 + 2.875 + 54.5013]$$
-$$ = \frac{59.8738}{98}$$
-$$ \approx 0.612 \text{to 3 s.f}$$
-\par Now for the other function:
-$$\overline{f_M(x)}=\frac{1}{99-1}\int_{1}^{99}f_M(x)dx$$
-$$  \approx 0.642 \text{to 3 s.f}$$
+\subsubsection{Approximation to a linear function}
 
-\par We get that the averages of the two functions are similar so the approximation may not be great, but that is to be decided by test suites of optimisation problems later on.
+We can simply approximate $f_P(x)$ and $f_M(x)$ both to be the identity function $f(x) = x$ as graphically comparing this to the piece-wise function it is a "close enough" approximation for the purposes of our solution.
 
 \par From here we can apply the simplex method without problem so this is our first working solution for the problem.
 
@@ -328,9 +311,9 @@ $$-\max_{\boldsymbol{x}} - g(\boldsymbol{x})$$
 \par Note that we still need to convert our objective function $g$ into the form $\boldsymbol{c} \cdot \boldsymbol{x}$. This is where this section splits into two sections for each approach we have discussed so far.
 
 \subsubsection{Approximation method}
-\par If we use the constant approximation that $f_P(x) \approx 0.612x$ and $f_M(x) \approx 0.642x$ then we can easily convert into this form:
+\par If we use the linear approximation that $f_P(x) \approx x$ and $f_M(x) \approx x$ then we can easily convert into this form:
 \begin{equation}
-    g(\boldsymbol{x}) \approx(0.612 k_1 B_P, 0.612 k_2 B_P, 0.642 k_3 B_M, 0.642 k_4 B_M) \cdot(x_1,x_2,x_3,x_4)
+    g(\boldsymbol{x}) \approx(k_1 B_P, k_2 B_P, _3 B_M, k_4 B_M) \cdot(x_1,x_2,x_3,x_4)
 \end{equation}
 \par We can then keep this function constant for the whole duration of the problem and simply apply the two phase simplex method to find a solution to the total problem:
 \begin{equation*}
@@ -358,10 +341,10 @@ b = \begin{psmallmatrix}
 \end{psmallmatrix}
 c = 
 \begin{psmallmatrix}
-    0.642 k_1 B_P \\
-    0.642 k_2 B_P  \\
-    0.612 k_3 B_M \\
-    0.612 k_4 B_M
+    k_1 B_P \\
+    k_2 B_P  \\
+    k_3 B_M \\
+    k_4 B_M
 \end{psmallmatrix}
 x = \begin{psmallmatrix}
     x_1 \\
@@ -388,7 +371,8 @@ After testing these two approaches it is noticed that the approximate solution i
     \label{fig:screenshot-results}
 \end{figure}
 \par This is likely because the objective function for the iterative method incentivises ignoring the points with the least skill points in them due to the lower slope of the damage rating functions at the lowest points of the domains. Hence what we should actually do is decrease the slopes as we gain larger skill points (i.e. incentivise increasing lower skills as they will lead to larger reward). This is an approach unusual to a linear programming problem, however since this is technically non-linear programming (but very similar) we must take other approaches. Let's see how this approach may improve or worsen the given results.
-\subsection{Improving the iterative method}
+\subsection{Problems with the iterative method}
+However, with the iterative method we can actually see that it does not properly optimise the problem no matter how the objective functions are modified (i.e. changing to a strictly decreasing linear piece-wise function from what the functions normally are)
 
 \printbibliography[heading=bibintoc, title={Bibliography}]
 \end{document}
