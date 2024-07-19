@@ -8,6 +8,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+    - name: Enter LaTeX Folder
+      run: |
+        cd latex
     - name: Build LaTeX Document
       uses: lyuwen/build-latex-action@v1.0.1
