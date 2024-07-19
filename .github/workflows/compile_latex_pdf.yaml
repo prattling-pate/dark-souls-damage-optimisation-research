@@ -23,3 +23,8 @@ jobs:
         cd latex
         latexmk -pdf main.tex 
         latexmk -c
+    - name: Upload PDF
+      uses: actions/upload-artifact@v3
+      with:
+        name: main-pdf
+        path: main.pdf
