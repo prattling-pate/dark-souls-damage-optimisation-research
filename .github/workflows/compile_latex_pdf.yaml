@@ -27,9 +27,9 @@ jobs:
       env:
         TOKEN: ${{ secrets.PAT }}
       run: |
+        cd ..
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        cd ..
         git add latex/main.pdf
         git commit -m "Add generated PDF"
         git push "https://${TOKEN}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref }}
