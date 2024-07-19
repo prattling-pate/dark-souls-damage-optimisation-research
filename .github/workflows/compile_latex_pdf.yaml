@@ -9,8 +9,5 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Go to Latex Folder
-      run: |
-        cd latex
     - name: Build LaTeX Document
       uses: lyuwen/build-latex-action@v1.0.1
