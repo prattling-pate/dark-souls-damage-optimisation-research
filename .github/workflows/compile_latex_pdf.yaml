@@ -1,0 +1,16 @@
+name: Build Latex PDF
+
+on:
+  push:
+    paths:
+    - "**.tex"
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: lyuwen/build-latex-action@v1.0.1
+      - name: Build LaTeX Document
+        with:
+          # Name of the file to build.
+          file: 'Dark Souls Respeccing Problem Solution/main.tex'
