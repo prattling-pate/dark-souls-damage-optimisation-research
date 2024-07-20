@@ -18,5 +18,5 @@ This repo is mainly concerned with the research of an optimisation problem of ma
 2. Manually increment each skill by 1 and following the path of greatest change using partial derivatives of the damage function.
 3. Only look at partial derivatives local to current non-optimal solution (due to linear piecewise function).
 
-# Take away
-The simplex method cannot solve the damage optimisation problem, however it can approximate a solution by approximating a linear piece wise function to a linear function over it's whole domain.
+# LaTeX write-up
+A detailed LaTeX write up of the research is in latex/main.pdf in .pdf format
