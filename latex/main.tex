@@ -232,7 +232,7 @@ We can simply approximate $f_P(x)$ and $f_M(x)$ both to be the identity function
 \par From here we can apply the simplex method without problem so this is our first working solution for the problem.
 
 \subsubsection{Recursive application of the simplex method on a piece-wise linear function}
-\par Firstly it's easy to see that this will take a bit more work, however it will be a more useful algorithm due to the "soft caps" of Dark Souls being directly built into this rather than being ignored in the previous solution (although this may not affect the solution provided by the method).
+\par Firstly it's easy to see that this will take a bit more work, however it will be a more useful algorithm due to the "soft caps" \footnote{A "soft cap" in role playing video games are typically points at which levelling a skill produces diminishing returns, there may be multiple soft caps for each skill as there are in Dark Souls} of Dark Souls being directly built into this rather than being ignored in the previous solution (although this may not affect the solution provided by the method).
 
 \par In order to provide this we must switch the reduced cost vector of the simplex instance (referred to as a tableau), ensuring we have it adjusted accordingly to new objective function and current solution. Then we will simply reapply the simplex method until the function switches or an optimal solution is finally given.
 
@@ -372,7 +372,7 @@ After testing these two approaches it is noticed that the approximate solution i
 \end{figure}
 \par This is likely because the objective function for the iterative method incentivises ignoring the points with the least skill points in them due to the lower slope of the damage rating functions at the lowest points of the domains. Hence what we should actually do is decrease the slopes as we gain larger skill points (i.e. incentivise increasing lower skills as they will lead to larger reward). This is an approach unusual to a linear programming problem, however since this is technically non-linear programming (but very similar) we must take other approaches. Let's see how this approach may improve or worsen the given results.
 \subsection{Problems with the iterative method}
-However, with the iterative method we can actually see that it does not properly optimise the problem no matter how the objective functions are modified (i.e. changing to a strictly decreasing linear piece-wise function from what the functions normally are)
+However, with the iterative method we can actually see that it does not properly optimise the problem no matter how the objective functions are modified (i.e. changing to a strictly decreasing linear piece-wise function from what the functions normally are to better encode skill "soft caps")
 
 \printbibliography[heading=bibintoc, title={Bibliography}]
 \end{document}
