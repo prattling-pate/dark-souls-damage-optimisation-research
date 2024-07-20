@@ -13,6 +13,7 @@ sorting=ynt
 \newtheorem{definition}{Definition}[section]
 \newtheorem{lemma}{Lemma}[section]
 \newtheorem{algorithm}{Algorithm}[section]
+\DeclareMathOperator*{\argmax}{arg\,max}
 \addbibresource{citations.bib} %Imports bibliography file
 
 \title{Dark Souls 'Damage Optimisation' Problem - Solution}
@@ -25,15 +26,17 @@ sorting=ynt
 \maketitle
 
 \tableofcontents
-
+\label{sec:intro}
 \section{Introduction}
 
 Dark Souls (2011) is a video-game and video-game franchise developed by FromSoftware and published by Bandai Namco. It is an RPG (Role Playing Game) based about careful and deliberate gameplay as well as player character statistics which players are free to choose to increase one at a time during gameplay. Players typically are confused as to how exactly this works and may spend hours on player made wiki entries stating how exactly to level up individual stats to maximise the damage dealt by the player. Additionally, non-damage outputting statistics such as "Vitality" and "Endurance" affect critical player features such as total damage the player can take before dying and the amount of stamina the player character has.
 \paragraph{}This is not to be used as much of a very useful tool as it is not difficult to appoint points in a decent manner, especially at high levels where the points given become arbitrary if a player is knowledgeable. This is made in order to test the suitability of linear programming in video game skill point appointment in general to produce a general solution to the problem later on.
 
-\section{Setup of the problem}
-\subsection{Strategy}
+\label{sec:intro, setup}
+\section{Linear Programming}
+\subsection{First Strategy}
 The setup of this problem is that the player needs to choose to appoint skills one at a time into one of 8 skills per level, with each skill doing something else. Each of the rewards the skills produce are quantifiable, we can therefore use a certain type of problem solving using a linear programming setup to maximise these rewards put into a multi-variable function with certain constraints acting on these.
+\label{sec:intro, LP}
 \subsection{Linear Programming}
 \subsubsection{What is Linear Programming?}
 \paragraph{}Linear programming is an approach to optimising a linear multi-variable function subject to an array of linear inequalities called constraints. Where a given optimisation problem is called a linear program.
@@ -142,7 +145,7 @@ Where A $\in \mathbb{Z}^{m \times n}, \boldsymbol{x}, \boldsymbol{b}, \boldsymbo
 \item Let $S = P \cup M$ be the set of damage attributes
 \item Let $f_P$ be the damage rating function for physical attributes
 \item Let $f_M$ be the damage rating function for magic attributes
-\item Let $k_i \in (0,2]$ be the damage scaling multiplier of the skill $i \in S$ due to the given weapon \footnote{Note that each $k_i$ is given by a piece-wise function taking in discrete letter values, outputting the midpoint of the possible scaling of a weapon of that grade. More info available on the wiki \cite{dswiki-formula} \cite{dswiki-formula-2}}
+\item Let $k_i \in (0,2]$ be the damage scaling multiplier of the skill $i \in S$ due to the given weapon\footnote{Note that each $k_i$ is given by a piece-wise function taking in discrete letter values, outputting the midpoint of the possible scaling of a weapon of that grade. More info available on the wiki \cite{dswiki-formula} \cite{dswiki-formula-2}}
 \item Let $B_P$ be the base physical damage of the given weapon
 \item Let $B_M$ be the base magic damage of the given weapon
 \end{itemize}
@@ -219,6 +222,7 @@ f_{M}(x)=
     \end{cases}
 \end{equation}
 \paragraph{}So the functions are actually continuous\footnote{$f_M$ is technically not continuous as it is laid out here as the 0.0041 coefficient on the interval $50 < x < 99$ is an approximation of the true coefficient for nice layout, the function itself is actually continuous.} and linear (assuming x is real and not discrete like it will be), but only over parts of their domain due to their piece-wise definitions. The reason for this is a concept known as "soft caps" in skill leveling in Dark Souls (This allows for very accurate damage optimisation). Hence we need to discuss some alternative ways to approach this linear program.
+\label{sec:problems-in-lp}
 \section{Problems in linear programming}
 \par In order to solve our optimisation for damage we must be able to properly handle the fact that the objective function changes as our decision variables change. These are different for each of the two subsets of skills $P$ and $M$.
 \par One way we may handle this is by approximation of each function to a linear function allowing us to apply the simplex method without any problems, however we lose the previously mentioned encoded "soft caps" in skill leveling with this, although this will result in faster time to solve.
@@ -232,10 +236,10 @@ We can simply approximate $f_P(x)$ and $f_M(x)$ both to be the identity function
 \par From here we can apply the simplex method without problem so this is our first working solution for the problem.
 
 \subsubsection{Recursive application of the simplex method on a piece-wise linear function}
-\par Firstly it's easy to see that this will take a bit more work, however it will be a more useful algorithm due to the "soft caps" \footnote{A "soft cap" in role playing video games are typically points at which levelling a skill produces diminishing returns, there may be multiple soft caps for each skill as there are in Dark Souls} of Dark Souls being directly built into this rather than being ignored in the previous solution (although this may not affect the solution provided by the method).
+\par Firstly it's easy to see that this will take a bit more work, however it will be a more useful algorithm due to the "soft caps"\footnote{A "soft cap" in role playing video games are typically points at which levelling a skill produces diminishing returns, there may be multiple soft caps for each skill as there are in Dark Souls} of Dark Souls being directly built into this rather than being ignored in the previous solution (although this may not affect the solution provided by the method).
 
 \par In order to provide this we must switch the reduced cost vector of the simplex instance (referred to as a tableau), ensuring we have it adjusted accordingly to new objective function and current solution. Then we will simply reapply the simplex method until the function switches or an optimal solution is finally given.
-
+\label{alg:iterative}
 \begin{algorithm}[Piece-Wise Linear Objective function Simplex method]
 ~\\
     \begin{enumerate}
@@ -247,7 +251,7 @@ We can simply approximate $f_P(x)$ and $f_M(x)$ both to be the identity function
 \end{algorithm}
 
 \par With both of these approaches we may finally formally construct our linear programs to be solved to accomplish this optimisation problem.
-
+\label{sec:setup-lp}
 \section{Setting up the linear program formally}
 \par So far we have been setting up in very vague terms what we will be doing to solve the problem. However now I will lay out every step of preparation explicitly:
 \subsection{Setting up the constraints}
@@ -361,6 +365,9 @@ x = \begin{psmallmatrix}
     s_4
 \end{psmallmatrix}
 \end{align*}
+\subsubsection{Iterative method}
+This is very similar to the approximation method with identical setup except for the fact that we keep our objective function $g$ as the non-linear piecewise function it is and apply algorithm \ref{alg:iterative}.
+\label{sec:testing}
 \section{Testing of algorithms}
 After testing these two approaches it is noticed that the approximate solution is actually more effective than the iterative solution for some special cases.
 % need to show results here, i.e. excel screenshots or showing raw python data here %
@@ -372,7 +379,46 @@ After testing these two approaches it is noticed that the approximate solution i
 \end{figure}
 \par This is likely because the objective function for the iterative method incentivises ignoring the points with the least skill points in them due to the lower slope of the damage rating functions at the lowest points of the domains. Hence what we should actually do is decrease the slopes as we gain larger skill points (i.e. incentivise increasing lower skills as they will lead to larger reward). This is an approach unusual to a linear programming problem, however since this is technically non-linear programming (but very similar) we must take other approaches. Let's see how this approach may improve or worsen the given results.
 \subsection{Problems with the iterative method}
-However, with the iterative method we can actually see that it does not properly optimise the problem no matter how the objective functions are modified (i.e. changing to a strictly decreasing linear piece-wise function from what the functions normally are to better encode skill "soft caps")
+However, with the iterative method we can actually see that it does not properly optimise the problem no matter how the objective functions are modified (i.e. changing to a strictly decreasing linear piece-wise function from what the functions normally are to better encode skill "soft caps", this will be discussed further in the next approach).
+\label{sec:linear-piece-prog}
+\section{Linear Piece-wise Programming}
+As we saw in the previous sections simplifying the problem down to a linear program and solving using the simplex method does provide solutions, however these are not optimal solutions as it is easy for me to personally change the variables to get a higher damage number by manually changing these solutions a bit. This is because the "soft cap" information is lost when approximating and the iterative changing of the objective function does not work as I thought it would (likely due to some loss in rigour of the method, in which I hadn't proven that this approach would even work). Hence in this section we will step back into the abstraction of the problem as a geometric optimization problem in an n-dimensional space as in section \ref{sec:intro, LP}.
+\subsection{Approaching the problem without the simplex method}
+From section \ref{sec:intro, LP} we can get the function we want to optimise and the constraints on which to optimize it on (which we have used in previous sections for approximate solutions).
+\subsubsection{Restatement of the problem}
+The optimisation problem is the following:
+\begin{equation*}
+\begin{aligned}
+ & \max &  f(\boldsymbol{x}) \\
+    &\text{subject to } & x_i \leq 99, & \quad \forall i \in S\\
+ & & x_i \geq \max\{c_i,r_i\}, & \quad \forall i \in S \\
+ & & \sum_{i\in S}x_i = l + \sum_{i\in S} c_i \\
+ & & x_i \geq 1, & \quad \forall i \in S
+\end{aligned}
+\end{equation*}
+Where $f(\boldsymbol{x}) = B_P\cdot (1 + \sum_{i \in P} k_i f_P(x_i)) + B_M \cdot (1 + \sum_{i \in M} k_i f_M(x_i)$.
+\subsubsection{Geometric intuition for a solution}
+\par We can solve the given problem from the previous section by using a similar intuition as we used in section \ref{sec:intro, LP}, where we can view the constraints as describing an n-dimensional space (where n is the number of skills we are optimizing, in this case 4) of all possible vector solutions (where each component is the number of skill points in each skill, so a vector in $\mathbb{R}^n$), and somewhere in this space lies some optimal solution.
+\par We can do this by moving our point from our starting solution (the default skills of the player) $l$ times in the integer lattice of solutions in the prescribed space (i.e. in the space described by the constraints there are discrete points which are consist of integer vector entries in $\mathbb{Z}^n$). The idea will be to move in the unit direction (i.e. increase a vector component of our proposed solution by 1) of greatest change (which will increase $f$ by the greatest amount) until we use up all of our level points $l$. In the following section we will discuss how we will do this.
+\subsubsection{Overview of solution}
+Generally speaking, what we want to do is in $l$ steps increment the skills vector by 1 in a unit direction of $\mathbb{Z}^n$ and ensuring this is the optimal movement to do by verifying that this will increase the damage the most.
+\par To determine at each step what direction to move the solution we can use calculus to determine this by using partial derivatives. This comes from the idea that the partial derivative of any multi variable function tells us the instantaneous rate of change of the function if we move in the direction of any of the unit vectors of the domain of the function (in this case we can think of this as $\mathbb{R}^n$, for the sake of continuity of the function, which we later confine to $\mathbb{Z}^n$).
+\par So what we will do is take the (local\footnote{The partial derivative of $f$ depends on what domain the skills vector resides in, as $f$ is a piece-wise function. Hence we will only focus on the derivatives around where the skills vector currently is (as we want which direction to move in locally to our current skills vector).}) partial derivatives of $f$ with respect to each unit vector and compare which of them is greatest (i.e. moving in that direction, $f$ will increase by the largest amount). Since $f$ is linear piece-wise then the partial derivatives of the function will all be real constants which are easy to compare using the standard relations ($>, < $ etc.). So now we can mathematically describe our algorithm for solving this optimisation problem:
+\subsubsection{Mathematical prescription of the algorithmic solution}
+\begin{algorithm}[]~\\
+    Let $\boldsymbol{x} = (x_1,\ldots,x_n)$ be the current skill vector (initially starts at default skills of player character, i.e. $x_i = c_i$ initially for all $i \in S$). \\ 
+    Let $l$ be the number of skill levels to spend. \\
+    Repeat the following $l$ times:
+     \begin{enumerate}
+        \item Enumerate all local partial derivatives (around $\boldsymbol{x}$) of $f$, and pick the skill $i \in S$ with the following:
+            $$\argmax_{i \in S} \frac{\partial f}{\partial x_i}(\boldsymbol{x})$$
+        \item Set $\boldsymbol{x} = (x_1, \ldots , x_i + 1, \ldots , x_n)$.
+    \end{enumerate} 
+    The final state of the vector $\boldsymbol{x}$ will be the optimal solution to the maximisation problem.
+\end{algorithm}
+
+Note: For the above algorithm we will define the enumerated local partial derivatives with the following rather than the standard definition as otherwise the derivatives will be undefined at the boundaries of $f$'s piece-wise domains:
+$$\frac{\partial f} {\partial x_i} = \lim_{h \to 0^-}\frac{f(x_1,\ldots,x_i + h,\ldots,x_n) - f(x_1,\ldots,x_i,\ldots,x_n)}{h} \quad \text{for} \quad f:\mathbb{R}^n \to \mathbb{R}$$
 
 \printbibliography[heading=bibintoc, title={Bibliography}]
 \end{document}
