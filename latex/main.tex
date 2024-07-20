@@ -418,7 +418,7 @@ Generally speaking, what we want to do is in $l$ steps increment the skills vect
 \end{algorithm}
 
 Note: For the above algorithm we will define the enumerated local partial derivatives with the following rather than the standard definition as otherwise the derivatives will be undefined at the boundaries of $f$'s piece-wise domains:
-$$\frac{\partial f} {\partial x_i} = \lim_{h \to 0^-}\frac{f(x_1,\ldots,x_i + h,\ldots,x_n) - f(x_1,\ldots,x_i,\ldots,x_n)}{h} \quad \text{for} \quad f:\mathbb{R}^n \to \mathbb{R}$$
+$$\frac{\partial f} {\partial x_i} = \lim_{h \to 0^+}\frac{f(x_1,\ldots,x_i + h,\ldots,x_n) - f(x_1,\ldots,x_i,\ldots,x_n)}{h} \quad \text{for} \quad f:\mathbb{R}^n \to \mathbb{R}$$
 
 \printbibliography[heading=bibintoc, title={Bibliography}]
 \end{document}
