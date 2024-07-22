@@ -1,0 +1,5 @@
+{
+    "weapon" : {"requirements" : [10,13,1,1], "grades": ["B", "B", "F", "F"], "physical_damage": 205, "magic_damage" : 0},
+    "skills" : [10,16,10,8],
+    "levels" : 97
+}

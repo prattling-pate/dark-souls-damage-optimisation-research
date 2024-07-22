@@ -33,11 +33,11 @@ def _get_maximum_skill_change(weapon: dict, floats: bool, skills_points : list[i
         if i < 2:
             damage_ratings[i] *= _get_soft_caps_gradient(
                     skills_points[i],
-                    [1, 10, 20, 40, 99]) * weapon["physical_damage"]
+                    [1, 60, 80, 99]) * weapon["physical_damage"]
         else:
             damage_ratings[i] *= _get_soft_caps_gradient(
                     skills_points[i],
-                    [1, 10, 30, 50, 99]) * weapon["magic_damage"]
+                    [1, 50, 60, 80, 99]) * weapon["magic_damage"]
         if damage_ratings[i] > damage_ratings[max_i]:
             max_i = i
     return max_i
